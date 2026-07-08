@@ -109,7 +109,7 @@ export default function App() {
 
   const [isProductCopied, setIsProductCopied] = useState(false);
   const handleShareProduct = async (product: any) => {
-    const shareUrl = `${window.location.origin}/?buy_product=${product.id}`;
+    const shareUrl = `${window.location.origin}/buy-product/${product.id}`;
     const shareData = {
       title: product.name,
       text: product.short_desc,
@@ -340,61 +340,83 @@ export default function App() {
   }, [activeTab]);
 
   useEffect(() => {
-    // Deep Linking Logic: Check for buy_product, buy_package, product, package, or blog in URL
+    // Deep Linking Logic: Check for path segments and query parameters for product, buy_product, package, buy_package, combo, buy_combo, blog
     const handleDeepLinking = () => {
-      if (loading) return;
-
+      const pathname = window.location.pathname;
       const params = new URLSearchParams(window.location.search);
-      const keys = ['buy_product', 'buy_package', 'product', 'package', 'blog'];
-      const presentKeys = keys.filter(k => params.has(k));
-      
-      if (presentKeys.length === 0) return;
+
+      let buyProductId = params.get('buy_product');
+      let buyPackageId = params.get('buy_package');
+      let buyComboId = params.get('buy_combo');
+      let productId = params.get('product');
+      let packageId = params.get('package');
+      let comboId = params.get('combo');
+      let blogId = params.get('blog');
+
+      if (!buyProductId && pathname.startsWith('/buy-product/')) buyProductId = pathname.replace('/buy-product/', '').split('/')[0];
+      if (!buyPackageId && pathname.startsWith('/buy-package/')) buyPackageId = pathname.replace('/buy-package/', '').split('/')[0];
+      if (!buyComboId && pathname.startsWith('/buy-combo/')) buyComboId = pathname.replace('/buy-combo/', '').split('/')[0];
+      if (!productId && pathname.startsWith('/product/')) productId = pathname.replace('/product/', '').split('/')[0];
+      if (!packageId && pathname.startsWith('/package/')) packageId = pathname.replace('/package/', '').split('/')[0];
+      if (!comboId && pathname.startsWith('/combo/')) comboId = pathname.replace('/combo/', '').split('/')[0];
+      if (!comboId && (pathname === '/combo' || pathname === '/combo/')) comboId = 'true';
+      if (!blogId && pathname.startsWith('/blog/')) blogId = pathname.replace('/blog/', '').split('/')[0];
+
+      const hasAnyLink = buyProductId || buyPackageId || buyComboId || productId || packageId || comboId || blogId;
+      if (!hasAnyLink) return;
 
       // 1. Handle Blog (Immediate)
-      const blogId = params.get('blog');
-      if (blogId !== null && blogId) {
+      if (blogId) {
         setSelectedBlogId(blogId);
         setActiveTab("blog-post");
+        return;
       }
 
-      // 2. Handle Products/Packages (Needs Data)
-      const hasProductParams = presentKeys.some(k => k !== 'blog');
-      const dataReady = products.length > 0 || recommendedPackages.length > 0;
+      // Handle combo tab without ID
+      if (comboId === "true") {
+        setActiveTab("combo");
+        return;
+      }
 
-      if (hasProductParams && !dataReady) {
-        return; // Wait for data
+      // 2. Handle Products/Packages/Combos (Needs Data)
+      const dataReady = products.length > 0 || recommendedPackages.length > 0 || comboPackages.length > 0;
+      if (!dataReady) {
+        return; // Wait for data to load
       }
 
       if (dataReady) {
-        const buyProductId = params.get('buy_product');
-        const buyPackageId = params.get('buy_package');
-        const productId = params.get('product');
-        const packageId = params.get('package');
-
         if (buyProductId) {
-          const product = products.find(p => p.id === buyProductId || p.product_code === buyProductId);
+          const product = products.find(p => p.id === buyProductId || p.product_code === buyProductId || p.id.toString() === buyProductId);
           if (product) openOrderDrawer(product, 'product');
         }
         if (buyPackageId) {
-          const pkg = [...recommendedPackages, ...comboPackages].find(p => p.id === buyPackageId || p.package_code === buyPackageId);
+          const pkg = [...recommendedPackages, ...comboPackages].find(p => p.id === buyPackageId || p.package_code === buyPackageId || p.id.toString() === buyPackageId);
           if (pkg) openOrderDrawer(pkg, 'package');
         }
+        if (buyComboId) {
+          const combo = [...recommendedPackages, ...comboPackages].find(p => p.id === buyComboId || p.package_code === buyComboId || p.id.toString() === buyComboId);
+          if (combo) openOrderDrawer(combo, 'package');
+        }
         if (productId) {
-          const product = products.find(p => p.id === productId || p.product_code === productId);
+          const product = products.find(p => p.id === productId || p.product_code === productId || p.id.toString() === productId);
           if (product) {
             setViewingProduct(product);
             setActiveTab("product-detail");
           }
         }
         if (packageId) {
-          const pkg = [...recommendedPackages, ...comboPackages].find(p => p.id === packageId || p.package_code === packageId);
+          const pkg = [...recommendedPackages, ...comboPackages].find(p => p.id === packageId || p.package_code === packageId || p.id.toString() === packageId);
           if (pkg) setSelectedPackage(pkg);
         }
+        if (comboId && comboId !== "true") {
+          const combo = [...recommendedPackages, ...comboPackages].find(p => p.id === comboId || p.package_code === comboId || p.id.toString() === comboId);
+          if (combo) {
+            setSelectedPackage(combo);
+          } else {
+            setActiveTab("combo");
+          }
+        }
       }
-
-      // 3. Clear URL parameters to prevent "sticky" state
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, '', newUrl);
     };
 
     handleDeepLinking();

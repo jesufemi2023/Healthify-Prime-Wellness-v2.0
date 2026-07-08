@@ -46,7 +46,7 @@ export const PackageQuickView: React.FC<PackageQuickViewProps> = ({
   }, [isOpen]);
 
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/?buy_package=${data.id}`;
+    const shareUrl = `${window.location.origin}/${data.is_combo ? 'buy-combo' : 'buy-package'}/${data.id}`;
     const shareData = {
       title: data.name,
       text: data.description,

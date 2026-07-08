@@ -64,7 +64,34 @@ interface Consultation {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<"home" | "about" | "products" | "recommended" | "combo" | "consultation" | "history" | "product-detail" | "package-detail" | "admin" | "blog" | "blog-post" | "search" | "testimonials">("home");
+  const [activeTab, setActiveTab] = useState<"home" | "about" | "products" | "recommended" | "combo" | "consultation" | "history" | "product-detail" | "package-detail" | "admin" | "blog" | "blog-post" | "search" | "testimonials">(() => {
+    const pathname = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+
+    let buyProductId = params.get('buy_product');
+    let buyPackageId = params.get('buy_package');
+    let buyComboId = params.get('buy_combo');
+    let productId = params.get('product');
+    let packageId = params.get('package');
+    let comboId = params.get('combo');
+    let blogId = params.get('blog');
+
+    if (!buyProductId && pathname.startsWith('/buy-product/')) buyProductId = pathname.replace('/buy-product/', '').split('/')[0];
+    if (!buyPackageId && pathname.startsWith('/buy-package/')) buyPackageId = pathname.replace('/buy-package/', '').split('/')[0];
+    if (!buyComboId && pathname.startsWith('/buy-combo/')) buyComboId = pathname.replace('/buy-combo/', '').split('/')[0];
+    if (!productId && pathname.startsWith('/product/')) productId = pathname.replace('/product/', '').split('/')[0];
+    if (!packageId && pathname.startsWith('/package/')) packageId = pathname.replace('/package/', '').split('/')[0];
+    if (!comboId && pathname.startsWith('/combo/')) comboId = pathname.replace('/combo/', '').split('/')[0];
+    if (!comboId && (pathname === '/combo' || pathname === '/combo/')) comboId = 'true';
+    if (!blogId && pathname.startsWith('/blog/')) blogId = pathname.replace('/blog/', '').split('/')[0];
+
+    if (blogId) return "blog-post";
+    if (comboId === "true") return "combo";
+    if (buyProductId || productId) return "product-detail";
+    if (buyPackageId || buyComboId || packageId || (comboId && comboId !== "true")) return "package-detail";
+
+    return "home";
+  });
   const [previousTab, setPreviousTab] = useState<typeof activeTab>("home");
 
   const navigateTo = (tab: typeof activeTab) => {
@@ -82,7 +109,23 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedPackage, setSelectedPackage] = useState<PackageData | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<PackageData | null>(() => {
+    const pathname = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+    let pkgId = params.get('package') || params.get('buy_package') || params.get('combo') || params.get('buy_combo');
+    if (!pkgId && pathname.startsWith('/package/')) pkgId = pathname.replace('/package/', '').split('/')[0];
+    if (!pkgId && pathname.startsWith('/buy-package/')) pkgId = pathname.replace('/buy-package/', '').split('/')[0];
+    if (!pkgId && pathname.startsWith('/combo/')) pkgId = pathname.replace('/combo/', '').split('/')[0];
+    if (!pkgId && pathname.startsWith('/buy-combo/')) pkgId = pathname.replace('/buy-combo/', '').split('/')[0];
+
+    if (!pkgId || pkgId === 'true') return null;
+
+    const cachedPackages = CacheService.get(CacheService.KEYS.PACKAGES);
+    if (Array.isArray(cachedPackages)) {
+      return cachedPackages.find((p: any) => p.id === pkgId || p.package_code === pkgId || p.id.toString() === pkgId) || null;
+    }
+    return null;
+  });
   const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null);
   const [isOrderDrawerOpen, setIsOrderDrawerOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -132,7 +175,21 @@ export default function App() {
       }
     }
   };
-  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(() => {
+    const pathname = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+    let productId = params.get('product') || params.get('buy_product');
+    if (!productId && pathname.startsWith('/product/')) productId = pathname.replace('/product/', '').split('/')[0];
+    if (!productId && pathname.startsWith('/buy-product/')) productId = pathname.replace('/buy-product/', '').split('/')[0];
+    
+    if (!productId) return null;
+
+    const cachedProducts = CacheService.get(CacheService.KEYS.PRODUCTS);
+    if (Array.isArray(cachedProducts)) {
+      return cachedProducts.find((p: any) => p.id === productId || p.product_code === productId || p.id.toString() === productId) || null;
+    }
+    return null;
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
@@ -1108,13 +1165,19 @@ export default function App() {
             </motion.div>
           )}
 
-          {activeTab === "package-detail" && selectedPackage && (
+          {activeTab === "package-detail" && (!selectedPackage ? (
+            <div className="py-32 text-center bg-white rounded-3xl border border-slate-100 shadow-xl max-w-4xl mx-auto my-12">
+              <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-slate-600 font-black text-lg">Loading package details...</p>
+              <p className="text-slate-400 text-xs mt-2">Please wait while we fetch the package information.</p>
+            </div>
+          ) : (
             <motion.div
               key="package-detail"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-8 pb-20 max-w-6xl mx-auto"
+              className="space-y-8 pb-40 max-w-6xl mx-auto relative"
             >
               {/* Back Button */}
               <button 
@@ -1282,16 +1345,54 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            </motion.div>
-          )}
 
-          {activeTab === "product-detail" && viewingProduct && (
+              {/* Sticky Bottom Action Bar */}
+              <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] py-4 px-6 md:px-12">
+                <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+                  <div className="hidden sm:flex flex-col">
+                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{selectedPackage.name}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl font-black text-slate-900">₦{(selectedPackage.price * (1 - (selectedPackage.discount / 100))).toLocaleString()}</span>
+                      <span className="text-xs text-slate-400 line-through">₦{selectedPackage.price.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <button 
+                      onClick={() => {
+                        const message = `Hello SD GHT Health Care, I am interested in the ${selectedPackage.name} package. Could you please provide more information on how I can place an order?`;
+                        window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                      }}
+                      className="flex-1 sm:flex-none px-6 h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      <Phone size={18} className="text-emerald-600" />
+                      <span>Chat with us</span>
+                    </button>
+                    <button 
+                      onClick={() => openOrderDrawer(selectedPackage, 'package', 1)}
+                      className="flex-1 sm:flex-none px-8 h-14 bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 active:scale-[0.98] flex items-center justify-center gap-2"
+                    >
+                      <ShoppingBag size={18} />
+                      <span>Order Now</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+
+          {activeTab === "product-detail" && (!viewingProduct ? (
+            <div className="py-32 text-center bg-white rounded-3xl border border-slate-100 shadow-xl max-w-4xl mx-auto my-12">
+              <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-slate-600 font-black text-lg">Loading product details...</p>
+              <p className="text-slate-400 text-xs mt-2">Please wait while we fetch the product information.</p>
+            </div>
+          ) : (
             <motion.div
               key="product-detail"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-8 pb-20"
+              className="space-y-8 pb-40 relative max-w-7xl mx-auto"
             >
               {/* Breadcrumbs / Back Button */}
               <button 
@@ -1530,8 +1631,40 @@ export default function App() {
                   </div>
                 </div>
               </div>
+
+              {/* Sticky Bottom Action Bar */}
+              <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] py-4 px-6 md:px-12">
+                <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+                  <div className="hidden sm:flex flex-col">
+                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{viewingProduct.name}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl font-black text-slate-900">₦{(viewingProduct.price_naira * (1 - viewingProduct.discount_percent / 100)).toLocaleString()}</span>
+                      <span className="text-xs text-slate-400 line-through">₦{viewingProduct.price_naira.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <button 
+                      onClick={() => {
+                        const message = `Hello SD GHT Health Care, I am interested in ${viewingProduct.name}. Could you please provide more information on how I can place an order?`;
+                        window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                      }}
+                      className="flex-1 sm:flex-none px-6 h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      <Phone size={18} className="text-emerald-600" />
+                      <span>Chat with us</span>
+                    </button>
+                    <button 
+                      onClick={() => openOrderDrawer(viewingProduct, 'product', detailQuantity)}
+                      className="flex-1 sm:flex-none px-8 h-14 bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 active:scale-[0.98] flex items-center justify-center gap-2"
+                    >
+                      <ShoppingBag size={18} />
+                      <span>Order Now</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </motion.div>
-          )}
+          ))}
 
           {activeTab === "blog" && (
           <BlogList 

@@ -1179,16 +1179,31 @@ export default function App() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-8 pb-40 max-w-6xl mx-auto relative"
             >
-              {/* Back Button */}
-              <button 
-                onClick={() => {
-                  navigateTo(selectedPackage.is_combo ? "combo" : "recommended");
-                }}
-                className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 font-bold transition-colors group mb-4"
-              >
-                <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                Back
-              </button>
+              {/* Back / Close Bar */}
+              <div className="flex items-center justify-between mb-4">
+                <button 
+                  onClick={() => {
+                    const target = selectedPackage.is_combo ? "combo" : "recommended";
+                    navigateTo(target);
+                    window.history.pushState({}, '', `/${target}`);
+                  }}
+                  className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 font-bold transition-colors group"
+                >
+                  <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                  <span>Back to Health Packages</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    const target = selectedPackage.is_combo ? "combo" : "recommended";
+                    navigateTo(target);
+                    window.history.pushState({}, '', `/${target}`);
+                  }}
+                  className="w-10 h-10 bg-white hover:bg-slate-100 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors shadow-sm"
+                  title="Close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
               <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex flex-col lg:flex-row relative">
                 {/* Share Button Top Right */}
@@ -1394,14 +1409,29 @@ export default function App() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-8 pb-40 relative max-w-7xl mx-auto"
             >
-              {/* Breadcrumbs / Back Button */}
-              <button 
-                onClick={() => navigateTo(previousTab === "product-detail" ? "products" : previousTab)}
-                className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 font-bold transition-colors group"
-              >
-                <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                Back
-              </button>
+              {/* Back / Close Bar */}
+              <div className="flex items-center justify-between mb-4">
+                <button 
+                  onClick={() => {
+                    navigateTo("products");
+                    window.history.pushState({}, '', '/products');
+                  }}
+                  className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 font-bold transition-colors group"
+                >
+                  <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                  <span>Back to Products</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    navigateTo("products");
+                    window.history.pushState({}, '', '/products');
+                  }}
+                  className="w-10 h-10 bg-white hover:bg-slate-100 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors shadow-sm"
+                  title="Close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 {/* Left: Image Gallery Style */}
@@ -2212,6 +2242,18 @@ export default function App() {
           isOpen={isOrderDrawerOpen}
           onClose={() => {
             setIsOrderDrawerOpen(false);
+            if (orderItem) {
+              if (orderItem.type === 'package') {
+                setSelectedPackage(orderItem.item);
+                setActiveTab("package-detail");
+                const path = orderItem.item.is_combo ? `/combo/${orderItem.item.id}` : `/package/${orderItem.item.id}`;
+                window.history.pushState({}, '', path);
+              } else if (orderItem.type === 'product') {
+                setViewingProduct(orderItem.item);
+                setActiveTab("product-detail");
+                window.history.pushState({}, '', `/product/${orderItem.item.id}`);
+              }
+            }
             setTimeout(() => setOrderItem(null), 500); // Wait for slide-out animation
           }}
           onShopMore={() => {

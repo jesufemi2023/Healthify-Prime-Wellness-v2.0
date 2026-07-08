@@ -1184,6 +1184,7 @@ export default function App() {
                 <button 
                   onClick={() => {
                     const target = selectedPackage.is_combo ? "combo" : "recommended";
+                    setSelectedPackage(null);
                     navigateTo(target);
                     window.history.pushState({}, '', `/${target}`);
                   }}
@@ -1195,6 +1196,7 @@ export default function App() {
                 <button 
                   onClick={() => {
                     const target = selectedPackage.is_combo ? "combo" : "recommended";
+                    setSelectedPackage(null);
                     navigateTo(target);
                     window.history.pushState({}, '', `/${target}`);
                   }}
@@ -1413,6 +1415,7 @@ export default function App() {
               <div className="flex items-center justify-between mb-4">
                 <button 
                   onClick={() => {
+                    setViewingProduct(null);
                     navigateTo("products");
                     window.history.pushState({}, '', '/products');
                   }}
@@ -1423,6 +1426,7 @@ export default function App() {
                 </button>
                 <button 
                   onClick={() => {
+                    setViewingProduct(null);
                     navigateTo("products");
                     window.history.pushState({}, '', '/products');
                   }}

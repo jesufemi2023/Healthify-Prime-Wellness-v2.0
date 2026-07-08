@@ -10,9 +10,10 @@ interface ComboCardProps {
   data: PackageData;
   onOrder: (item: any, type: 'package', qty: number) => void;
   onProductClick: (product: Product) => void;
+  onViewPackage?: (pkg: PackageData) => void;
 }
 
-export const ComboCard: React.FC<ComboCardProps> = ({ data, onOrder, onProductClick }) => {
+export const ComboCard: React.FC<ComboCardProps> = ({ data, onOrder, onProductClick, onViewPackage }) => {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [showFullBenefits, setShowFullBenefits] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -38,7 +39,11 @@ export const ComboCard: React.FC<ComboCardProps> = ({ data, onOrder, onProductCl
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         onClick={() => {
-          setIsQuickViewOpen(true);
+          if (onViewPackage) {
+            onViewPackage(data);
+          } else {
+            setIsQuickViewOpen(true);
+          }
         }}
         className="bg-white rounded-[3rem] border-4 border-slate-100 shadow-xl hover:shadow-3xl transition-all duration-700 overflow-hidden flex flex-col group relative cursor-pointer"
       >

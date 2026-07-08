@@ -10,9 +10,10 @@ interface PackageCardProps {
   allPackages?: PackageData[];
   onOrder?: (quantity: number) => void;
   onViewProduct?: (product: Product) => void;
+  onViewPackage?: (pkg: PackageData) => void;
 }
 
-export const PackageCard: React.FC<PackageCardProps> = ({ data, allPackages, onOrder, onViewProduct }) => {
+export const PackageCard: React.FC<PackageCardProps> = ({ data, allPackages, onOrder, onViewProduct, onViewPackage }) => {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -22,7 +23,11 @@ export const PackageCard: React.FC<PackageCardProps> = ({ data, allPackages, onO
     <>
       <div 
         onClick={() => {
-          setIsQuickViewOpen(true);
+          if (onViewPackage) {
+            onViewPackage(data);
+          } else {
+            setIsQuickViewOpen(true);
+          }
         }}
         className="flex flex-col h-full bg-white border border-slate-200 rounded-2xl md:rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-500 group relative cursor-pointer"
       >

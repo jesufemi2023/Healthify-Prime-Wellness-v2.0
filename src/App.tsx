@@ -442,9 +442,11 @@ export default function App() {
       }
 
       if (dataReady) {
+        let found = false;
         if (buyProductId) {
           const product = products.find(p => p.id === buyProductId || p.product_code === buyProductId || p.id.toString() === buyProductId);
           if (product) {
+            found = true;
             setViewingProduct(product);
             setActiveTab("product-detail");
             openOrderDrawer(product, 'product');
@@ -453,6 +455,7 @@ export default function App() {
         if (buyPackageId) {
           const pkg = [...recommendedPackages, ...comboPackages].find(p => p.id === buyPackageId || p.package_code === buyPackageId || p.id.toString() === buyPackageId);
           if (pkg) {
+            found = true;
             setSelectedPackage(pkg);
             setActiveTab("package-detail");
             openOrderDrawer(pkg, 'package');
@@ -461,6 +464,7 @@ export default function App() {
         if (buyComboId) {
           const combo = [...recommendedPackages, ...comboPackages].find(p => p.id === buyComboId || p.package_code === buyComboId || p.id.toString() === buyComboId);
           if (combo) {
+            found = true;
             setSelectedPackage(combo);
             setActiveTab("package-detail");
             openOrderDrawer(combo, 'package');
@@ -469,6 +473,7 @@ export default function App() {
         if (productId) {
           const product = products.find(p => p.id === productId || p.product_code === productId || p.id.toString() === productId);
           if (product) {
+            found = true;
             setViewingProduct(product);
             setActiveTab("product-detail");
           }
@@ -476,6 +481,7 @@ export default function App() {
         if (packageId) {
           const pkg = [...recommendedPackages, ...comboPackages].find(p => p.id === packageId || p.package_code === packageId || p.id.toString() === packageId);
           if (pkg) {
+            found = true;
             setSelectedPackage(pkg);
             setActiveTab("package-detail");
           }
@@ -483,17 +489,50 @@ export default function App() {
         if (comboId && comboId !== "true") {
           const combo = [...recommendedPackages, ...comboPackages].find(p => p.id === comboId || p.package_code === comboId || p.id.toString() === comboId);
           if (combo) {
+            found = true;
             setSelectedPackage(combo);
             setActiveTab("package-detail");
           } else {
+            found = true;
             setActiveTab("combo");
           }
+        }
+
+        if (!found && (buyProductId || productId)) {
+          setViewingProduct(null);
+          navigateTo("products");
+          window.history.pushState({}, '', '/products');
+        } else if (!found && (buyPackageId || buyComboId || packageId || (comboId && comboId !== "true"))) {
+          setSelectedPackage(null);
+          navigateTo("recommended");
+          window.history.pushState({}, '', '/recommended');
         }
       }
     };
 
     handleDeepLinking();
   }, [products, recommendedPackages, comboPackages, loading]);
+
+  useEffect(() => {
+    if (activeTab === "package-detail" && !selectedPackage) {
+      const timer = setTimeout(() => {
+        if (!selectedPackage) {
+          navigateTo("recommended");
+          window.history.pushState({}, '', '/recommended');
+        }
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+    if (activeTab === "product-detail" && !viewingProduct) {
+      const timer = setTimeout(() => {
+        if (!viewingProduct) {
+          navigateTo("products");
+          window.history.pushState({}, '', '/products');
+        }
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, selectedPackage, viewingProduct]);
 
   const handleConsultation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1166,10 +1205,19 @@ export default function App() {
           )}
 
           {activeTab === "package-detail" && (!selectedPackage ? (
-            <div className="py-32 text-center bg-white rounded-3xl border border-slate-100 shadow-xl max-w-4xl mx-auto my-12">
+            <div className="py-32 text-center bg-white rounded-3xl border border-slate-100 shadow-xl max-w-4xl mx-auto my-12 px-6">
               <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
               <p className="text-slate-600 font-black text-lg">Loading package details...</p>
-              <p className="text-slate-400 text-xs mt-2">Please wait while we fetch the package information.</p>
+              <p className="text-slate-400 text-xs mt-2 mb-6">Please wait while we fetch the package information.</p>
+              <button
+                onClick={() => {
+                  navigateTo("recommended");
+                  window.history.pushState({}, '', '/recommended');
+                }}
+                className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-700 transition-colors shadow-lg"
+              >
+                Back to Health Packages
+              </button>
             </div>
           ) : (
             <motion.div

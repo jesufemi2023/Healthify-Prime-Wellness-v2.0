@@ -44,6 +44,7 @@ import { ComboCard } from "./components/ComboCard";
 import { OrderDrawer } from "./components/OrderDrawer";
 import { BlogList } from "./components/blog/BlogList";
 import { BlogPost } from "./components/blog/BlogPost";
+import { PackageLandingPage } from "./components/PackageLandingPage";
 import { PackageQuickView } from "./components/PackageQuickView";
 import { AIChatBot } from "./components/chat/AIChatBot";
 import { SearchResults } from "./components/SearchResults";
@@ -1220,229 +1221,21 @@ export default function App() {
               </button>
             </div>
           ) : (
-            <motion.div
-              key="package-detail"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-8 pb-40 max-w-6xl mx-auto relative"
-            >
-              {/* Back / Close Bar */}
-              <div className="flex items-center justify-between mb-4">
-                <button 
-                  onClick={() => {
-                    const target = selectedPackage.is_combo ? "combo" : "recommended";
-                    setSelectedPackage(null);
-                    navigateTo(target);
-                    window.history.pushState({}, '', `/${target}`);
-                  }}
-                  className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 font-bold transition-colors group"
-                >
-                  <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                  <span>Back to Health Packages</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    const target = selectedPackage.is_combo ? "combo" : "recommended";
-                    setSelectedPackage(null);
-                    navigateTo(target);
-                    window.history.pushState({}, '', `/${target}`);
-                  }}
-                  className="w-10 h-10 bg-white hover:bg-slate-100 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors shadow-sm"
-                  title="Close"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex flex-col lg:flex-row relative">
-                {/* Share Button Top Right */}
-                <div className="absolute top-5 right-5 z-50 flex items-center gap-2">
-                  <button 
-                    onClick={async () => {
-                      const shareUrl = `${window.location.origin}/${selectedPackage.is_combo ? 'combo' : 'package'}/${selectedPackage.id}`;
-                      try {
-                        await navigator.clipboard.writeText(shareUrl);
-                        alert("Link copied to clipboard!");
-                      } catch (err) {
-                        console.error("Error copying:", err);
-                      }
-                    }}
-                    className="p-3 bg-white rounded-full border border-slate-200 text-slate-600 hover:text-emerald-600 shadow-sm flex items-center gap-2 px-4 text-xs font-black uppercase tracking-wider"
-                  >
-                    <Share2 size={16} />
-                    <span>Share Package</span>
-                  </button>
-                </div>
-
-                {/* Left Side: Visuals & Included Products */}
-                <div className="lg:w-[45%] bg-slate-50/50 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-100 overflow-y-auto">
-                  <div className="p-8 md:p-12 flex items-center justify-center relative overflow-hidden shrink-0">
-                    <img 
-                      src={selectedPackage.package_image_url || selectedPackage.products?.[0]?.image_url || null} 
-                      alt={selectedPackage.name} 
-                      className="w-full max-h-[400px] object-contain mix-blend-multiply drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)]" 
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-
-                  <div className="p-6 md:p-8 space-y-6 bg-white/50 border-t border-slate-100">
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-200/50 pb-2">Included in this Package</h4>
-                    <div className="grid grid-cols-1 gap-3">
-                      {(selectedPackage.products || []).map((product) => (
-                        <div 
-                          key={product.id}
-                          className="flex items-center gap-4 p-3 bg-white rounded-xl border border-slate-100 group/prod hover:shadow-md hover:border-emerald-200 transition-all duration-300 cursor-pointer"
-                          onClick={() => {
-                            setViewingProduct(product);
-                            navigateTo("product-detail");
-                            window.history.pushState({}, '', `/product/${product.id}`);
-                          }}
-                        >
-                          <div className="w-14 h-14 bg-slate-50 rounded-lg border border-slate-100 p-1 flex items-center justify-center shrink-0">
-                            <img 
-                              src={product.image_url || null} 
-                              alt={product.name} 
-                              className="w-full h-full object-contain mix-blend-multiply"
-                              referrerPolicy="no-referrer"
-                            />
-                          </div>
-                          <div className="flex-grow min-w-0">
-                            <h5 className="text-xs font-black text-slate-900 line-clamp-1 mb-1">{product.name}</h5>
-                            <span className="flex items-center gap-1 text-[9px] font-black text-emerald-600 uppercase tracking-widest">
-                              <Info size={10} /> View Details
-                            </span>
-                          </div>
-                          <ChevronRight size={14} className="text-slate-300 group-hover/prod:text-emerald-500 group-hover/prod:translate-x-1 transition-all" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Side: Content & Order */}
-                <div className="lg:w-[55%] flex flex-col overflow-y-auto bg-white">
-                  <div className="p-8 md:p-12 space-y-10">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                          {selectedPackage.is_combo ? 'Combo Kit' : 'Recommended Package'}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Star size={14} className="fill-orange-400 text-orange-400" />
-                          <span className="text-xs font-black text-slate-900">4.9</span>
-                        </div>
-                      </div>
-                      <h2 className="text-2xl md:text-4xl font-black text-slate-900 leading-tight">
-                        {selectedPackage.name}
-                      </h2>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50 pb-2">Overview</h4>
-                      <p className="text-base text-slate-600 font-medium leading-relaxed">
-                        {selectedPackage.description}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-4">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50 pb-2">Health Benefits</h4>
-                        <div className="space-y-3">
-                          {selectedPackage.health_benefits.map((benefit, i) => (
-                            <div key={i} className="flex items-start gap-3">
-                              <div className="mt-1 bg-emerald-100 p-1 rounded-md">
-                                <CheckCircle2 size={12} className="text-emerald-600" />
-                              </div>
-                              <span className="text-sm text-slate-600 font-bold leading-tight">{benefit}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50 pb-2">Target Symptoms</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedPackage.symptoms.map((symptom, i) => (
-                            <span key={i} className="bg-slate-50 text-slate-500 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-slate-100">
-                              {symptom}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-10 border-t border-slate-100 space-y-8">
-                      <div className="flex items-end justify-between">
-                        <div className="flex flex-col">
-                          <span className="text-sm text-slate-400 line-through font-bold mb-1">₦{selectedPackage.price.toLocaleString()}</span>
-                          <div className="flex items-baseline gap-3">
-                            <span className="text-4xl font-black text-slate-900">₦{(selectedPackage.price * (1 - (selectedPackage.discount / 100))).toLocaleString()}</span>
-                            {selectedPackage.discount > 0 && (
-                              <span className="bg-red-600 text-white px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                                Save {selectedPackage.discount}%
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <button 
-                          onClick={() => {
-                            const message = `Hello SD GHT Health Care, I am interested in the ${selectedPackage.name} package. Could you please provide more information on how I can place an order?`;
-                            window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
-                          }}
-                          className="flex-1 h-16 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-                        >
-                          <Phone size={20} className="text-emerald-600" />
-                          Chat with us
-                        </button>
-                        <button 
-                          onClick={() => openOrderDrawer(selectedPackage, 'package', 1)}
-                          className="flex-[1.5] h-16 bg-emerald-600 text-white rounded-2xl font-black text-lg md:text-xl uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl active:scale-[0.98] flex items-center justify-center gap-3"
-                        >
-                          <ShoppingBag size={22} />
-                          Order Now
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sticky Bottom Action Bar */}
-              <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] py-4 px-6 md:px-12">
-                <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-                  <div className="hidden sm:flex flex-col">
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{selectedPackage.name}</span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl font-black text-slate-900">₦{(selectedPackage.price * (1 - (selectedPackage.discount / 100))).toLocaleString()}</span>
-                      <span className="text-xs text-slate-400 line-through">₦{selectedPackage.price.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <button 
-                      onClick={() => {
-                        const message = `Hello SD GHT Health Care, I am interested in the ${selectedPackage.name} package. Could you please provide more information on how I can place an order?`;
-                        window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
-                      }}
-                      className="flex-1 sm:flex-none px-6 h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm"
-                    >
-                      <Phone size={18} className="text-emerald-600" />
-                      <span>Chat with us</span>
-                    </button>
-                    <button 
-                      onClick={() => openOrderDrawer(selectedPackage, 'package', 1)}
-                      className="flex-1 sm:flex-none px-8 h-14 bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 active:scale-[0.98] flex items-center justify-center gap-2"
-                    >
-                      <ShoppingBag size={18} />
-                      <span>Order Now</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <PackageLandingPage 
+              pkg={selectedPackage}
+              onBack={() => {
+                const target = selectedPackage.is_combo ? "combo" : "recommended";
+                setSelectedPackage(null);
+                navigateTo(target);
+                window.history.pushState({}, '', `/${target}`);
+              }}
+              onOrder={(pkg, type, qty) => openOrderDrawer(pkg, type, qty)}
+              onProductClick={(product) => {
+                setViewingProduct(product);
+                navigateTo("product-detail");
+                window.history.pushState({}, '', `/product/${product.id}`);
+              }}
+            />
           ))}
 
           {activeTab === "product-detail" && (!viewingProduct ? (

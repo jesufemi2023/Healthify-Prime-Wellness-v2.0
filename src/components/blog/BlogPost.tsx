@@ -29,6 +29,7 @@ import { CONFIG } from '../../config';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getOptimizedImageUrl } from '../../utils/cloudinary';
+import { openWhatsApp } from '../../utils/navigation';
 import { 
   trackBlogView, 
   trackWhatsAppClick, 
@@ -530,7 +531,7 @@ export function BlogPost({ id, onBack, onOrderPackage }: BlogPostProps) {
                 onClick={() => {
                   trackWhatsAppClick("Blog Header Call");
                   const message = `Hello, I am reading the article "${post.title}" and I am interested in the ${post.recommended_package?.name} solution. Could you please provide more information?`;
-                  window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                  openWhatsApp(CONFIG.whatsapp.number, message);
                 }}
                 className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-sm"
               >
@@ -661,7 +662,7 @@ export function BlogPost({ id, onBack, onOrderPackage }: BlogPostProps) {
                         onClick={() => {
                           trackWhatsAppClick("WhatsApp Chat Widget Link");
                           const msg = `Hello ${chatPartner}, I am reading your article "${post.title}" and I need immediate advice regarding the treatment.`;
-                          window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(msg)}`, '_blank');
+                          openWhatsApp(CONFIG.whatsapp.number, msg);
                         }}
                         className="px-3.5 py-1.5 bg-[#128c7e] hover:bg-[#075e54] text-white text-xs font-black uppercase tracking-wider rounded-full transition-all flex items-center gap-1 border border-white/10 shadow"
                       >
@@ -725,7 +726,7 @@ export function BlogPost({ id, onBack, onOrderPackage }: BlogPostProps) {
                       onClick={() => {
                         trackWhatsAppClick("WhatsApp Quick Order Simulator Send");
                         const msg = `Hello ${chatPartner}, I finished reading "${post.title}" and would like to order the recommended treatment pack.`;
-                        window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(msg)}`, '_blank');
+                        openWhatsApp(CONFIG.whatsapp.number, msg);
                       }}
                       className="w-10 h-10 rounded-full bg-[#128c7e] text-white flex items-center justify-center hover:bg-[#075e54] shadow transition-all shrink-0"
                     >
@@ -770,7 +771,7 @@ export function BlogPost({ id, onBack, onOrderPackage }: BlogPostProps) {
                             onClick={() => {
                               trackWhatsAppClick("Order Success WhatsApp Confirmation");
                               const message = `Hello, I just placed an order on your blog for ${post.recommended_package?.name}. Name: ${fullName}, Phone: ${phoneNumber}. Please confirm my shipment!`;
-                              window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                              openWhatsApp(CONFIG.whatsapp.number, message);
                             }}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-8 py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 uppercase tracking-wider text-sm w-full sm:w-auto"
                           >
@@ -1302,7 +1303,7 @@ export function BlogPost({ id, onBack, onOrderPackage }: BlogPostProps) {
                         onClick={() => {
                           trackWhatsAppClick("Sidebar WhatsApp Consult");
                           const message = `Hello, I'm reading the health blog about "${post.title}" and would like to order the recommended package "${post.recommended_package?.name}".`;
-                          window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                          openWhatsApp(CONFIG.whatsapp.number, message);
                         }}
                         className="w-full bg-white border border-slate-200 text-slate-700 py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
                       >
@@ -1355,7 +1356,7 @@ export function BlogPost({ id, onBack, onOrderPackage }: BlogPostProps) {
               onClick={() => {
                 trackWhatsAppClick("Mobile Sticky WhatsApp Click");
                 const message = `Hello GHT, I'm reading the blog about "${post.title}" and want to order "${post.recommended_package?.name}" right away.`;
-                window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                openWhatsApp(CONFIG.whatsapp.number, message);
               }}
               className="flex-1 bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-colors flex items-center justify-center gap-1"
             >

@@ -24,6 +24,7 @@ import { PackageData, Product, PaymentMethod } from '../types';
 import { CONFIG } from '../config';
 import { supabase } from '../lib/supabase';
 import { trackOrderStart, trackOrderComplete, trackWhatsAppClick } from '../lib/analytics';
+import { openWhatsApp as triggerWhatsApp } from '../utils/navigation';
 
 interface OrderDrawerProps {
   isOpen: boolean;
@@ -254,7 +255,7 @@ Name: ${formData.full_name}
 Delivery Date: ${formData.delivery_date}
 Payment: ${formData.payment_method === 'pod' ? 'Pay on Delivery' : 'Bank Transfer'}`;
     
-    window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+    triggerWhatsApp(CONFIG.whatsapp.number, message);
   };
 
   const nextStep = () => setStep(s => Math.min(s + 1, 3));

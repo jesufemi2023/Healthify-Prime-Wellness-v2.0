@@ -52,6 +52,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import { TestimonialsPage } from "./components/TestimonialsPage";
 import { Product, PackageData } from "./types";
 import { trackPageView, trackConsultation, trackWhatsAppClick, trackBlogView } from "./lib/analytics";
+import { openWhatsApp } from "./utils/navigation";
 
 interface Consultation {
   id: string;
@@ -637,7 +638,7 @@ export default function App() {
 
   const handleWhatsAppClick = (location: string) => {
     trackWhatsAppClick(location);
-    window.open(`https://wa.me/${CONFIG.whatsapp.number.replace(/\D/g, '')}?text=${encodeURIComponent(CONFIG.whatsapp.defaultMessage)}`, '_blank');
+    openWhatsApp(CONFIG.whatsapp.number, CONFIG.whatsapp.defaultMessage);
   };
 
   // Luxury Organic & Bio-medical wellness backgrounds for beautiful look & feel in each page segment
@@ -1386,7 +1387,7 @@ export default function App() {
                     <button 
                       onClick={() => {
                         const message = `Hello SD GHT Health Care, I am interested in ${viewingProduct.name}. Could you please provide more information on how I can place an order?`;
-                        window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                        openWhatsApp(CONFIG.whatsapp.number, message);
                       }}
                       className="flex-1 bg-white border-2 border-slate-200 text-slate-900 py-5 rounded-2xl font-black text-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
                     >
@@ -1521,7 +1522,7 @@ export default function App() {
                     <button 
                       onClick={() => {
                         const message = `Hello SD GHT Health Care, I am interested in ${viewingProduct.name}. Could you please provide more information on how I can place an order?`;
-                        window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                        openWhatsApp(CONFIG.whatsapp.number, message);
                       }}
                       className="flex-1 sm:flex-none px-6 h-14 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm"
                     >
@@ -2018,7 +2019,7 @@ export default function App() {
                       <button 
                         onClick={() => {
                           const message = `Hello SD GHT Health Care, I am interested in ${selectedProduct.name}. Could you please provide more information on how I can place an order?`;
-                          window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                          openWhatsApp(CONFIG.whatsapp.number, message);
                         }}
                         className="flex-1 bg-white border-2 border-slate-200 text-slate-900 py-4 md:py-6 rounded-2xl font-black text-sm md:text-base hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
                       >
@@ -2047,7 +2048,7 @@ export default function App() {
                     <button 
                       onClick={() => {
                         const message = `Hello SD GHT Health Care, I am interested in ${selectedProduct.name}. Could you please provide more information on how I can place an order?`;
-                        window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                        openWhatsApp(CONFIG.whatsapp.number, message);
                       }}
                       className="w-full bg-white border-2 border-slate-200 text-slate-900 py-3 rounded-2xl font-black text-base md:text-lg hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
                     >

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Star, ShieldCheck, ChevronRight, CheckCircle2, Globe, Truck, Info, MessageSquare, Plus, Minus, ShoppingBag, Phone, Share2, Check } from 'lucide-react';
 import { CONFIG } from '../config';
 import { PackageData, Product } from '../types';
+import { openWhatsApp } from '../utils/navigation';
 
 interface PackageQuickViewProps {
   isOpen: boolean;
@@ -323,7 +324,7 @@ export const PackageQuickView: React.FC<PackageQuickViewProps> = ({
                         <button 
                           onClick={() => {
                             const message = `Hello SD GHT Health Care, I am interested in the ${data.name} package. Could you please provide more information on how I can place an order?`;
-                            window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                            openWhatsApp(CONFIG.whatsapp.number, message);
                           }}
                           className="flex-1 h-16 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-black text-sm md:text-base uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
                         >

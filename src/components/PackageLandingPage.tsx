@@ -6,6 +6,7 @@ import {
 import { PackageData, Product } from '../types';
 import { CONFIG } from '../config';
 import { getOptimizedImageUrl } from '../utils/cloudinary';
+import { openWhatsApp } from '../utils/navigation';
 
 interface PackageLandingPageProps {
   pkg: PackageData;
@@ -255,7 +256,7 @@ export const PackageLandingPage: React.FC<PackageLandingPageProps> = ({
                 <button 
                   onClick={() => {
                     const message = `Hello SD GHT Health Care, I am interested in ordering the ${pkg.name} (${quantity} unit(s)). Please guide me on delivery and payment.`;
-                    window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                    openWhatsApp(CONFIG.whatsapp.number, message);
                   }}
                   className="h-16 bg-white hover:bg-slate-50 border-2 border-emerald-600 text-emerald-700 rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-md"
                 >
@@ -401,7 +402,7 @@ export const PackageLandingPage: React.FC<PackageLandingPageProps> = ({
             <button 
               onClick={() => {
                 const message = `Hello SD GHT Health Care, I am interested in ordering the ${pkg.name}. Please guide me.`;
-                window.open(`https://wa.me/${CONFIG.whatsapp.number}?text=${encodeURIComponent(message)}`, '_blank');
+                openWhatsApp(CONFIG.whatsapp.number, message);
               }}
               className="flex-1 sm:flex-none px-6 h-14 bg-white border-2 border-emerald-600 text-emerald-700 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
